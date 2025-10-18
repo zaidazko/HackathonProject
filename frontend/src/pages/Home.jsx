@@ -250,7 +250,7 @@ const App = () => {
                 </div>
             </main>
             <footer className="text-center py-6 text-sm text-slate-500">
-                <p>Powered by Google Gemini</p>
+              
             </footer>
         </div>
     );
