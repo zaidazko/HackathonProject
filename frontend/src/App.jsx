@@ -1,10 +1,9 @@
 import React from 'react'
+import Home from 'frontend/src/pages/Home.jsx'
 
 const App = () => {
   return (
-    <div>
-
-    </div>
+    <Home/>
   )
 }
 
