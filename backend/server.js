@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getJson } from "serpapi";
 
@@ -7,6 +8,26 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Enable CORS for frontend communication
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // Vite default frontend port
+      "http://localhost:3000", // Backend port (for testing)
+      "http://127.0.0.1:5173", // Alternative localhost format
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+    ],
+  })
+);
 
 // Middleware
 app.use(express.json());
