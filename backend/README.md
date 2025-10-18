@@ -52,6 +52,14 @@ curl -X POST http://localhost:3000/search \
   -d '{"query": "latest AI news"}'
 ```
 
+### Test Smart Search (Form Data → Gemini → SerpAPI)
+
+```bash
+curl -X POST http://localhost:3000/smart-search \
+  -H "Content-Type: application/json" \
+  -d '{"formData": {"topic": "AI", "location": "San Francisco", "budget": "1000"}}'
+```
+
 ## Project Structure
 
 ```
