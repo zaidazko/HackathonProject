@@ -60,6 +60,14 @@ curl -X POST http://localhost:3000/smart-search \
   -d '{"formData": {"topic": "AI", "location": "San Francisco", "budget": "1000"}}'
 ```
 
+### Test Furniture Generation (Form Data → Image + Furniture List → Search Queries)
+
+```bash
+curl -X POST http://localhost:3000/generate-furniture \
+  -H "Content-Type: application/json" \
+  -d '{"formData": {"room": "living room", "style": "modern", "budget": "5000"}}'
+```
+
 ## Project Structure
 
 ```
