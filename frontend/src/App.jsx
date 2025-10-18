@@ -1,9 +1,9 @@
 import React from 'react'
-import Home from 'frontend/src/pages/Home.jsx'
+import Home from '../src/pages/Home.jsx'
 
 const App = () => {
   return (
-    <Home/>
+    <Home/> 
   )
 }
 
