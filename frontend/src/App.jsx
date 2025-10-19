@@ -2,22 +2,32 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import FurnitureDemo from './pages/FurnitureDemo.jsx';
+import logo from '../images/Logo.png'; // ✅ correct path
 
 const App = () => {
   return (
     <Router>
       <nav className="bg-indigo-600 shadow-md px-8 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Room Modeler</h1>
-        <div className="space-x-6">
+        {/* Logo Section */}
+        <Link to="/" className="flex items-center space-x-2">
+          <img
+            src={logo}
+            alt="Room Modeler Logo"
+            className="h-12 w-auto scale-90 transform origin-left object-contain"
+          />
+        </Link>
+
+        {/* Navigation Links */}
+        <div className="space-x-8">
           <Link
             to="/"
-            className="text-white hover:text-[#79EBFC] transition-colors duration-200"
+            className="text-white text-xl font-semibold hover:text-[#79EBFC] transition-colors duration-200"
           >
             Home
           </Link>
           <Link
             to="/gallery"
-            className="text-white hover:text-[#79EBFC] transition-colors duration-200"
+            className="text-white text-xl font-semibold hover:text-[#79EBFC] transition-colors duration-200"
           >
             Gallery
           </Link>

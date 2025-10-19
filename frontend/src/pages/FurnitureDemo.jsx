@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-const BACKEND_URL = "http://127.0.0.1:3000";
+const BACKEND_URL = ""; // empty → use relative
+// fetch(`/api/gallery`) etc.
+
 const withTransform = (url, t = "w_400,h_400,c_fill,q_auto,f_auto") =>
   url.replace("/upload/", `/upload/${t}/`);
 
@@ -39,6 +41,36 @@ export default function FurnitureDemo() {
 
         {loading && <p className="text-center text-gray-600 mb-4">Loading…</p>}
         {err && <p className="text-center text-red-600 mb-4">{err}</p>}
+{/* ─── Upload Button ─────────────────────────────── */}
+<div className="flex justify-end mb-6">
+  <input
+    type="file"
+    accept="image/*"
+    className="hidden"
+    id="gallery-upload"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const fd = new FormData();
+        fd.append("image", file); // must be "image"
+        const r = await fetch(`/api/gallery/upload`, { method: "POST", body: fd });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || "Upload failed");
+
+        // Refresh the gallery list
+        const rr = await fetch(`/api/gallery`);
+        const jj = await rr.json();
+        setImages(jj.images || []);
+      } catch (e) {
+        setErr(e.message || String(e));
+      } finally {
+        e.target.value = "";
+      }
+    }}
+  />
+
+</div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {images.length === 0 &&
