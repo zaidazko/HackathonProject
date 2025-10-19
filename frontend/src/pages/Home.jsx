@@ -3,6 +3,8 @@ import React, { useState, useRef, useCallback } from "react";
 import { DESIGN_STYLES, COLOR_PALETTES } from "/src/constants.js";
 import { fileToBase64, dataUrlToBlob } from "/src/utils/fileUtils.js";
 import { generateRoomDesign } from "/src/services/geminiService.js";
+import logo from '/images/Logoblack.png'; // ✅ correct path
+
 
 const CameraIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -257,7 +259,7 @@ const App = () => {
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || "Upload failed.");
 
-      setAddToGalleryMsg("✅ Added to gallery!");
+      setAddToGalleryMsg("Added to gallery!");
     } catch (e) {
       setAddToGalleryMsg(`❌ ${e.message || "Failed to add to gallery."}`);
     } finally {
@@ -283,11 +285,22 @@ const App = () => {
   return (
     <div className="min-h-screen font-sans text-slate-800">
       {/* Title block */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-6">
-        <h1 className="text-5xl font-bold text-center text-slate-900 tracking-tight">ReVibe</h1>
-        <p className="text-lg text-slate-600 text-center mt-6">
-          Smart interior design tailored to your taste and budget.
-        </p>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-1">
+       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-2 text-center">
+  <div className="flex justify-center items-center">
+    <img
+      src={logo}
+      alt="Room Modeler Logo"
+      className="h-20 w-auto transform origin-center object-contain drop-shadow-md"
+    />
+  </div>
+  <p className="text-lg text-slate-600 text-center mt-4">
+    Smart interior design tailored to your taste and budget.
+  </p>
+</div>
+
+
+       
       </div>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -584,7 +597,7 @@ const App = () => {
       </main>
 
       <footer className="text-center py-6 text-sm text-slate-500">
-        <p>Powered by Google Gemini</p>
+        <p>Created by Base60</p>
       </footer>
 
       {/* Camera Overlay */}
