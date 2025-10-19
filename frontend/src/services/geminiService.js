@@ -1,7 +1,8 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
+import { searchFurniture } from "./serpService.js";
 
 if (!import.meta.env.VITE_GEMINI_API_KEY) {
-    throw new Error("API_KEY environment variable is not set");
+  throw new Error("API_KEY environment variable is not set");
 }
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
@@ -19,22 +20,22 @@ const furnitureSchema = {
             type: Type.STRING,
             description: "Name of the item.",
           },
-          link: {
+          description: {
             type: Type.STRING,
-            description: "A real-world, shoppable URL for the item from a popular retailer.",
+            description:
+              "Detailed description of the furniture item for search purposes.",
           },
-          price: {
+          estimatedPrice: {
             type: Type.NUMBER,
-            description: "Estimated price of the item in USD.",
+            description: "Estimated price range for this type of item in USD.",
           },
         },
-        required: ["name", "link", "price"],
+        required: ["name", "description", "estimatedPrice"],
       },
     },
   },
   required: ["furniture"],
 };
-
 
 export const generateRoomDesign = async (
   originalImageBase64,
@@ -53,18 +54,18 @@ export const generateRoomDesign = async (
       - Color Palette: ${colors.join(", ")}
       - Other instructions: ${instructions || "None"}
     `;
-    
+
     const imageResult = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [
-            { inlineData: { data: originalImageBase64, mimeType } },
-            { text: imageGenerationPrompt },
-          ],
-        },
-        config: {
-            responseModalities: [Modality.IMAGE],
-        },
+      model: "gemini-2.5-flash-image",
+      contents: {
+        parts: [
+          { inlineData: { data: originalImageBase64, mimeType } },
+          { text: imageGenerationPrompt },
+        ],
+      },
+      config: {
+        responseModalities: [Modality.IMAGE],
+      },
     });
 
     const generatedImagePart = imageResult.candidates?.[0]?.content?.parts?.[0];
@@ -76,19 +77,29 @@ export const generateRoomDesign = async (
 
     // Step 2: Analyze the generated image for furniture
     const furnitureAnalysisPrompt = `
-      You are an expert interior designer and personal shopper. Analyze the following image of a redesigned room.
-      - The total cost for all items must be under $${budget} USD.
+      You are an expert interior designer. Analyze the following image of a redesigned room.
+      - The total cost for all items should be under $${budget} USD.
       
-      Identify the key furniture and decor items. For each item, find a real-world product link from a popular online retailer and its estimated price in USD. Ensure the total cost is plausible given the budget. Prioritize items that are currently in stock or have been available for purchase from major online retailers within the last 6 months to ensure the links are valid.
+      Identify the key furniture and decor items visible in the room. For each item, provide:
+      1. A clear name for the item
+      2. A detailed description that would be useful for searching for similar products online (include style, color, material, size characteristics)
+      3. An estimated price range for this type of item
+      
+      Focus on major furniture pieces like sofas, chairs, tables, lighting, rugs, and decorative items. Be specific about style, color, and material characteristics that would help find similar products.
       
       Respond with a JSON object.
     `;
-    
+
     const furnitureResult = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
+      model: "gemini-2.5-pro",
       contents: {
         parts: [
-          { inlineData: { data: generatedImageBase64, mimeType: generatedImageMimeType } },
+          {
+            inlineData: {
+              data: generatedImageBase64,
+              mimeType: generatedImageMimeType,
+            },
+          },
           { text: furnitureAnalysisPrompt },
         ],
       },
@@ -97,19 +108,35 @@ export const generateRoomDesign = async (
         responseSchema: furnitureSchema,
       },
     });
-    
+
     // Fix: Trim whitespace from the response text before parsing as JSON.
     const furnitureJson = JSON.parse(furnitureResult.text.trim());
 
+    // Step 3: Search for real furniture using SerpAPI
+    let furnitureWithSearchResults;
+    try {
+      furnitureWithSearchResults = await searchFurniture(
+        furnitureJson.furniture
+      );
+    } catch (error) {
+      console.error("SerpAPI search failed:", error);
+      // If SerpAPI fails, return furniture without search results
+      furnitureWithSearchResults = {
+        furniture: furnitureJson.furniture.map((item) => ({
+          ...item,
+          searchResults: [],
+        })),
+      };
+    }
+
     return {
       imageUrl: `data:${generatedImageMimeType};base64,${generatedImageBase64}`,
-      furniture: furnitureJson.furniture,
+      furniture: furnitureWithSearchResults.furniture,
     };
-
   } catch (error) {
     console.error("Error generating room design:", error);
     if (error instanceof Error) {
-        throw new Error(`Failed to generate design: ${error.message}`);
+      throw new Error(`Failed to generate design: ${error.message}`);
     }
     throw new Error("An unknown error occurred while generating the design.");
   }

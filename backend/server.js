@@ -3,13 +3,15 @@ import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fetchShoppingResults } from "./serpServiceAPI.js"; // import the module
 import { getJson } from "serpapi";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// Enable CORS and JSON parsing
+app.use(cors());
 app.use(express.json());
 
 // Initialize Gemini
@@ -81,15 +83,70 @@ app.post("/shopping-search", async (req, res) => {
     res.json({
       success: true,
       totalBudget,
-      results
+      results,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
 
+// New endpoint for searching furniture based on AI-generated descriptions
+app.post("/search-furniture", async (req, res) => {
+  try {
+    const { furniture } = req.body;
+
+    if (!furniture || !Array.isArray(furniture) || furniture.length === 0) {
+      return res.status(400).json({ error: "Furniture array is required" });
+    }
+
+    // Extract descriptions for SerpAPI search - use simpler search terms
+    const searchQueries = furniture.map((item) => {
+      // Use just the name for simpler searches, or extract key furniture terms
+      const simpleQuery = item.name.toLowerCase();
+      return simpleQuery;
+    });
+
+    console.log("Search queries:", searchQueries);
+
+    // Use existing fetchShoppingResults function
+    const searchResults = await fetchShoppingResults(searchQueries);
+
+    console.log("Search results:", JSON.stringify(searchResults, null, 2));
+
+    // Map the results back to the original furniture structure
+    const furnitureWithResults = furniture.map((item, index) => ({
+      ...item,
+      searchResults: searchResults[index]?.results || [],
+    }));
+
+    res.json({
+      success: true,
+      furniture: furnitureWithResults,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test endpoint for SerpAPI
+app.post("/test-serp", async (req, res) => {
+  try {
+    const { query } = req.body;
+    console.log("Testing SerpAPI with query:", query);
+
+    const results = await fetchShoppingResults([query]);
+    res.json({
+      success: true,
+      query,
+      results,
+    });
+  } catch (error) {
+    console.error("SerpAPI test error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
