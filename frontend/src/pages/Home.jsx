@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { DESIGN_STYLES, COLOR_PALETTES } from '/src/constants.js';
 import { fileToBase64, dataUrlToBlob } from '/src/utils/fileUtils.js';
+import { generateRoomDesign } from '/src/services/geminiService.js';
 
 // --- Helper & UI Components (defined outside main App to prevent re-creation on re-renders) ---
 
@@ -77,7 +78,7 @@ const App = () => {
 
         try {
             const imageBase64 = await fileToBase64(imageFile);
-            /*const designResult = await generateRoomDesign(
+            const designResult = await generateRoomDesign(
                 imageBase64,
                 imageFile.type,
                 selectedStyles,
@@ -85,7 +86,7 @@ const App = () => {
                 budget,
                 instructions
             );
-            setResult(designResult);*/
+            setResult(designResult);
             setTimeout(() => {
               resultRef.current?.scrollIntoView({ behavior: 'smooth' });
             }, 100);

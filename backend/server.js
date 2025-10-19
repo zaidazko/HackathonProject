@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { fetchShoppingResults } from "./serpServiceAPI.js"; // import the module
 import { getJson } from "serpapi";
 
 dotenv.config();
@@ -39,7 +40,7 @@ app.post("/test-gemini", async (req, res) => {
   }
 });
 
-// Simple SerpAPI search route
+/* Simple SerpAPI search route
 app.post("/search", async (req, res) => {
   try {
     const { query } = req.body;
@@ -65,6 +66,30 @@ app.post("/search", async (req, res) => {
     });
   }
 });
+*/
+// Shopping search route with multiple furniture items and total budget
+app.post("/shopping-search", async (req, res) => {
+  try {
+    const { items, totalBudget = 5000 } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Items array is required" });
+    }
+
+    const results = await fetchShoppingResults(items);
+
+    res.json({
+      success: true,
+      totalBudget,
+      results
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
