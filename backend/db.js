@@ -27,10 +27,18 @@ db.exec(`
     height INTEGER,
     format TEXT,
     bytes INTEGER,
+    design_data TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE INDEX IF NOT EXISTS idx_images_created_at ON images (created_at DESC);
 `);
+
+// Add design_data column if it doesn't exist (for existing databases)
+try {
+  db.exec(`ALTER TABLE images ADD COLUMN design_data TEXT;`);
+} catch (e) {
+  // Column already exists, ignore error
+}
 
 export default db;

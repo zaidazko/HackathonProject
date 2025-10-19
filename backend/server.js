@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 // ───────────────────────────────────────────────────────────────────────────────
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
@@ -36,11 +36,11 @@ cloudinary.config({
 // SQLite prepared statements (gallery)
 // ───────────────────────────────────────────────────────────────────────────────
 const insertImageStmt = db.prepare(`
-  INSERT INTO images (public_id, url, original_filename, width, height, format, bytes)
-  VALUES (@public_id, @url, @original_filename, @width, @height, @format, @bytes)
+  INSERT INTO images (public_id, url, original_filename, width, height, format, bytes, design_data)
+  VALUES (@public_id, @url, @original_filename, @width, @height, @format, @bytes, @design_data)
 `);
 const listImagesStmt = db.prepare(`
-  SELECT id, public_id, url, original_filename, width, height, format, bytes, created_at
+  SELECT id, public_id, url, original_filename, width, height, format, bytes, design_data, created_at
   FROM images
   ORDER BY id DESC
   LIMIT @limit OFFSET @offset
@@ -126,7 +126,9 @@ app.post("/search-furniture", async (req, res) => {
     if (!furniture || !Array.isArray(furniture) || furniture.length === 0) {
       return res.status(400).json({ error: "Furniture array is required" });
     }
-    const searchQueries = furniture.map((item) => (item?.name || "").toLowerCase());
+    const searchQueries = furniture.map((item) =>
+      (item?.name || "").toLowerCase()
+    );
     const searchResults = await fetchShoppingResults(searchQueries);
     const furnitureWithResults = furniture.map((item, i) => ({
       ...item,
@@ -159,7 +161,9 @@ app.post("/test-serp", async (req, res) => {
 app.post("/api/gallery/upload", upload.single("image"), async (req, res) => {
   try {
     if (!req.file?.buffer) {
-      return res.status(400).json({ ok: false, error: "Missing 'image' file." });
+      return res
+        .status(400)
+        .json({ ok: false, error: "Missing 'image' file." });
     }
 
     const uploadResult = await new Promise((resolve, reject) => {
@@ -179,6 +183,7 @@ app.post("/api/gallery/upload", upload.single("image"), async (req, res) => {
       height: uploadResult.height || null,
       format: uploadResult.format || null,
       bytes: uploadResult.bytes || null,
+      design_data: req.body.design_data || null,
     };
 
     const info = insertImageStmt.run(row);
@@ -192,7 +197,10 @@ app.post("/api/gallery/upload", upload.single("image"), async (req, res) => {
 // List images (paginated)
 app.get("/api/gallery", (req, res) => {
   const page = Math.max(1, parseInt(req.query.page || "1", 10));
-  const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize || "30", 10)));
+  const pageSize = Math.min(
+    50,
+    Math.max(1, parseInt(req.query.pageSize || "30", 10))
+  );
   const offset = (page - 1) * pageSize;
 
   const images = listImagesStmt.all({ limit: pageSize, offset });
@@ -209,7 +217,9 @@ app.delete("/api/gallery/:id", async (req, res) => {
     const row = findImageByIdStmt.get(id);
     if (!row) return res.status(404).json({ ok: false, error: "Not found." });
 
-    await cloudinary.uploader.destroy(row.public_id, { resource_type: "image" });
+    await cloudinary.uploader.destroy(row.public_id, {
+      resource_type: "image",
+    });
     deleteImageStmt.run(id);
     res.json({ ok: true });
   } catch (e) {
