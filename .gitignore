@@ -1,0 +1,12 @@
+# Global
+.DS_Store
+node_modules/
+**/node_modules/
+.env
+**/.env
+
+# Frontend
+frontend/dist/
+
+# Backend
+backend/data.sqlite

@@ -1,24 +1,26 @@
 // backend/db.js
-import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import Database from "better-sqlite3";
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ensure data dir
-const dataDir = path.join(dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+const dbPath = path.join(__dirname, "data.sqlite");
 
-const dbPath = path.join(dataDir, 'gallery.db');
+// Make sure folder exists (optional if you store elsewhere)
+if (!fs.existsSync(__dirname)) {
+  fs.mkdirSync(__dirname, { recursive: true });
+}
+
 const db = new Database(dbPath);
 
 // Create table if not exists
-db.exec(
+db.exec(`
   CREATE TABLE IF NOT EXISTS images (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    public_id TEXT NOT NULL UNIQUE,
+    public_id TEXT NOT NULL,
     url TEXT NOT NULL,
     original_filename TEXT,
     width INTEGER,
@@ -27,6 +29,8 @@ db.exec(
     bytes INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
-);
+
+  CREATE INDEX IF NOT EXISTS idx_images_created_at ON images (created_at DESC);
+`);
 
 export default db;
