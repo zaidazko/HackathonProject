@@ -1,8 +1,8 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home.jsx';
-import FurnitureDemo from './pages/FurnitureDemo.jsx';
-import logo from '../images/Logo.png'; // ✅ correct path
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import FurnitureDemo from "./pages/FurnitureDemo.jsx";
+import logo from "../images/Logo.png"; // ✅ correct path
 
 const App = () => {
   return (
