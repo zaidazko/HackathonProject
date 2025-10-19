@@ -433,7 +433,7 @@ const App = () => {
                       to capture it
                     </p>
                     <p className="text-sm text-slate-500 mt-2">
-                      💡 Tip: You can also paste an image directly (Ctrl+V /
+                       Tip: You can also paste an image directly (Ctrl+V /
                       Cmd+V)
                     </p>
                   </div>
