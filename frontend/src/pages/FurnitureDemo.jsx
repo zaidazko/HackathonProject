@@ -6,6 +6,7 @@ const BACKEND_URL = ""; // empty → use relative
 const withTransform = (url, t = "w_400,h_400,c_fill,q_auto,f_auto") =>
   url.replace("/upload/", `/upload/${t}/`);
 
+// ibrahim was here
 export default function FurnitureDemo() {
   const [images, setImages] = useState([]);
   const [selected, setSelected] = useState(null);
