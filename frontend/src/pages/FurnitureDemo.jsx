@@ -157,11 +157,37 @@ export default function FurnitureDemo() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-xl p-6 max-w-6xl w-[95%] max-h-[90vh] shadow-xl overflow-y-auto"
+              className="bg-white rounded-xl p-6 max-w-7xl w-[95%] max-h-[90vh] shadow-xl overflow-y-auto"
             >
+              {/* Header with close button */}
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {selected.original_filename || `Image ${selected.id}`}
+                </h2>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                  title="Close"
+                >
+                  <svg
+                    className="w-6 h-6 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
               {/* Image Section */}
-              <div className="mb-6">
-                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+              <div className="mb-8">
+                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4 flex items-center justify-center shadow-lg">
                   <img
                     src={selected.url}
                     alt={selected.original_filename || `Image ${selected.id}`}
@@ -170,52 +196,44 @@ export default function FurnitureDemo() {
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm text-gray-600">
                   <div className="truncate">
-                    {selected.original_filename || `image-${selected.id}`} ·{" "}
                     {selected.width}×{selected.height}px ·{" "}
-                    {selected.format?.toUpperCase?.()}
+                    {selected.format?.toUpperCase?.()} ·{" "}
+                    {selected.created_at && new Date(selected.created_at).toLocaleDateString()}
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleDelete(selected.id)}
-                      disabled={deleting}
-                      className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      {deleting ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                          Delete
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setSelected(null)}
-                      className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
-                    >
-                      Close
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDelete(selected.id)}
+                    disabled={deleting}
+                    className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {deleting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Delete
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 
               {/* Design Details Section */}
-              {selected.design_data && (
+              {selected.design_data ? (
                 <div className="space-y-6">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">
                     Design Details
@@ -228,60 +246,107 @@ export default function FurnitureDemo() {
                         <h4 className="text-xl font-semibold text-gray-800 mb-4">
                           Shopping List
                         </h4>
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           {selected.design_data.furniture.map((item, index) => (
                             <div
                               key={index}
-                              className="bg-white rounded-lg p-4 border border-gray-200"
+                              className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm"
                             >
-                              <div className="flex justify-between items-start mb-2">
-                                <h5 className="font-semibold text-gray-800">
+                              <div className="flex justify-between items-start mb-3">
+                                <h5 className="text-lg font-semibold text-gray-800">
                                   {item.name}
                                 </h5>
-                                <span className="text-sm font-medium text-indigo-600">
+                                <span className="text-lg font-bold text-indigo-600">
                                   ${item.estimatedPrice || "N/A"}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-600 mb-2">
+                              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                                 {item.description}
                               </p>
 
                               {/* Product Links */}
                               {item.searchResults &&
                                 item.searchResults.length > 0 && (
-                                  <div className="mt-3">
-                                    <p className="text-sm font-medium text-gray-700 mb-2">
-                                      Similar Products:
-                                    </p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  <div className="mt-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                      <p className="text-sm font-semibold text-gray-700">
+                                        Similar Products ({item.searchResults.length} found):
+                                      </p>
+                                      <span className="text-xs text-gray-500">
+                                        Click to view on retailer website
+                                      </span>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {item.searchResults
-                                        .slice(0, 4)
+                                        .slice(0, 6)
                                         .map((product, i) => (
                                           <a
                                             key={i}
                                             href={product.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center space-x-2 p-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+                                            className="group flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 hover:shadow-md transition-all duration-200 border border-gray-200 hover:border-indigo-300"
                                           >
                                             {product.thumbnail && (
-                                              <img
-                                                src={product.thumbnail}
-                                                alt={product.title}
-                                                className="w-8 h-8 object-cover rounded"
-                                              />
+                                              <div className="flex-shrink-0">
+                                                <img
+                                                  src={product.thumbnail}
+                                                  alt={product.title}
+                                                  className="w-12 h-12 object-cover rounded-md"
+                                                  onError={(e) => {
+                                                    e.target.style.display = "none";
+                                                    e.target.nextElementSibling.style.display = "flex";
+                                                  }}
+                                                />
+                                                <div
+                                                  className="w-12 h-12 bg-gray-200 flex items-center justify-center text-gray-400 text-xs rounded-md"
+                                                  style={{ display: "none" }}
+                                                >
+                                                  No Image
+                                                </div>
+                                              </div>
                                             )}
                                             <div className="flex-1 min-w-0">
-                                              <p className="text-xs font-medium text-gray-800 truncate">
+                                              <p className="text-sm font-medium text-gray-800 group-hover:text-indigo-800 truncate leading-tight">
                                                 {product.title}
                                               </p>
-                                              <p className="text-xs text-indigo-600 font-semibold">
-                                                ${product.price}
-                                              </p>
+                                              <div className="flex items-center justify-between mt-1">
+                                                <p className="text-sm font-bold text-indigo-600">
+                                                  ${product.price}
+                                                </p>
+                                                {product.source && (
+                                                  <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                                    {product.source}
+                                                  </span>
+                                                )}
+                                              </div>
+                                              <div className="mt-1">
+                                                <span className="inline-flex items-center text-xs text-indigo-600 group-hover:text-indigo-700">
+                                                  View Product
+                                                  <svg
+                                                    className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                  >
+                                                    <path
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                      strokeWidth={2}
+                                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                    />
+                                                  </svg>
+                                                </span>
+                                              </div>
                                             </div>
                                           </a>
                                         ))}
                                     </div>
+                                    {item.searchResults.length > 6 && (
+                                      <p className="text-xs text-gray-500 mt-2 text-center">
+                                        Showing 6 of {item.searchResults.length} products
+                                      </p>
+                                    )}
                                   </div>
                                 )}
                             </div>
@@ -380,6 +445,31 @@ export default function FurnitureDemo() {
                       </div>
                     </div>
                   )}
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-8 text-center">
+                  <div className="text-gray-400 mb-4">
+                    <svg
+                      className="w-16 h-16 mx-auto"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    No Design Data Available
+                  </h3>
+                  <p className="text-gray-500">
+                    This image was uploaded without design analysis data. 
+                    Images generated through the AI design tool will include furniture recommendations and shopping links.
+                  </p>
                 </div>
               )}
             </div>

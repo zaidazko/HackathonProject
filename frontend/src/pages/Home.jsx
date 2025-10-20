@@ -298,6 +298,35 @@ const App = () => {
       });
       const fd = new FormData();
       fd.append("image", file);
+      
+      // Compute cost summary locally to avoid referencing variables declared later
+      const computedRange = (result?.furniture || []).reduce(
+        (range, item) => {
+          if (item.searchResults?.length) {
+            const prices = item.searchResults.map((p) => p.price);
+            return {
+              min: range.min + Math.min(...prices),
+              max: range.max + Math.max(...prices),
+            };
+          }
+          const est = item.estimatedPrice || 0;
+          return { min: range.min + est, max: range.max + est };
+        },
+        { min: 0, max: 0 }
+      );
+      const computedAverage = (computedRange.min + computedRange.max) / 2;
+
+      // Include design data with the upload
+      const designData = {
+        furniture: result.furniture || [],
+        totalCostRange: computedRange,
+        averageCost: computedAverage,
+        styles: selectedStyles,
+        colors: selectedColors,
+        budget: budget,
+        instructions: instructions,
+      };
+      fd.append("design_data", JSON.stringify(designData));
 
       const r = await fetch(`/api/gallery/upload`, {
         method: "POST",
@@ -312,7 +341,7 @@ const App = () => {
     } finally {
       setAddingToGallery(false);
     }
-  }, [result]);
+  }, [result, selectedStyles, selectedColors, budget, instructions]);
 
   // Cost calc
   const totalCostRange = result?.furniture.reduce(
